@@ -1,0 +1,325 @@
+OMT Utilities Implementation Status
+Generated: 2026-05-18
+
+Scope
+-----
+This work implements the planned Godot OMT utilities inside the local project:
+
+  /home/cole/om-tplugin
+
+The original plan file was not edited.
+
+
+What Has Been Implemented
+-------------------------
+
+1. Shared utility layer
+
+Added:
+
+  tools/common/omt_tools.gd
+  tools/common/omt_capture_devices.gd
+
+These provide shared helpers for runtime status display, dictionary/stat formatting,
+audio peak metering, camera feed discovery, microphone device listing, and CameraTexture
+creation.
+
+
+2. OMT Monitor
+
+Added:
+
+  tools/monitor/omt_monitor.tscn
+  tools/monitor/omt_monitor.gd
+
+Implemented features:
+
+  - OMT source discovery using OMTDiscovery.
+  - Source picker plus manual address field.
+  - Connect and disconnect controls.
+  - Full-quality live playback using OMTReceiver.get_texture().
+  - Stream-only fullscreen overlay that expands the OMT texture inside the app
+    window instead of switching the whole OS window to fullscreen.
+  - Runtime status banner.
+  - Receiver status line showing connection state, source, and last error.
+  - Stats panel showing display, video, audio, last audio frame, sender info,
+    and metadata.
+
+Implementation note:
+
+  The monitor intentionally uses OMTReceiver.get_texture() instead of the current
+  OMTVideoStream path because the framework README describes OMTVideoStream as
+  early VideoStreamPlayer integration, while OMTReceiver is the working texture
+  receive path.
+
+
+3. Framework audio send support
+
+Modified:
+
+  gdextension/src/omt_output.h
+  gdextension/src/omt_output.cpp
+  doc_classes/OMTOutput.xml
+
+Implemented features:
+
+  - Added OMTOutput.send_audio_frame(interleaved_samples, sample_rate, channels).
+  - Accepts interleaved float32 PCM from GDScript.
+  - Converts interleaved PCM to planar FPA1 audio required by libomt.
+  - Sends OMTFrameType_Audio frames via omt_send().
+  - Added audio send counters:
+      get_audio_frames_sent()
+      get_audio_frames_attempted()
+      get_audio_samples_sent()
+      get_last_audio_send_result()
+  - Added audio_frame_sent signal.
+  - Updated OMTOutput documentation with the new audio method.
+
+Implementation note:
+
+  This extends the existing OMTOutput class rather than creating a separate
+  OMTAudioInput or OMTAVOutput class. That matched the plan preference to keep
+  the API small unless the existing output node proved insufficient.
+
+
+4. Camera And Microphone To OMT utility
+
+Added:
+
+  tools/camera_mic_sender/omt_camera_mic_sender.tscn
+  tools/camera_mic_sender/omt_camera_mic_sender.gd
+
+Implemented features:
+
+  - Source name field.
+  - Camera picker using CameraServer feeds.
+  - Microphone picker using AudioServer input devices.
+  - Resolution picker.
+  - FPS and quality controls.
+  - Audio enable and mute controls.
+  - Camera preview rendered into a SubViewport.
+  - CameraTexture activation for the selected camera feed.
+  - OMTOutput publishing that SubViewport.
+  - AudioStreamMicrophone capture through AudioEffectCapture.
+  - Audio level meter.
+  - Microphone audio sent through OMTOutput.send_audio_frame().
+  - Start/stop controls and status/errors.
+  - Default output quality raised to 90 for clearer monitor playback.
+
+Implementation note:
+
+  The implementation uses Godot's built-in CameraServer, CameraTexture,
+  AudioServer, AudioStreamMicrophone, and AudioEffectCapture first. This avoids
+  unnecessary platform-specific native code until testing proves a specific
+  desktop target needs it.
+
+
+5. Test Pattern Generator
+
+Added:
+
+  tools/test_pattern_generator/omt_test_pattern_generator.tscn
+  tools/test_pattern_generator/omt_test_pattern_generator.gd
+  tools/test_pattern_generator/test_pattern_canvas.gd
+
+Implemented features:
+
+  - Source name field.
+  - SMPTE-style color bars.
+  - Checkerboard pattern.
+  - Grid pattern.
+  - Moving target overlay.
+  - Frame counter and elapsed time overlay.
+  - Resolution picker.
+  - FPS and quality controls.
+  - Metadata send button.
+  - Generated sine tone.
+  - Tone frequency control.
+  - Local tone monitoring through AudioStreamGenerator.
+  - Video published through OMTOutput from a SubViewport.
+  - Audio tone published through OMTOutput.send_audio_frame().
+  - Default output quality raised to 90 for clearer monitor playback.
+
+
+6. Export and release support
+
+Added:
+
+  export_presets.cfg
+  tools/release/export_all.sh
+  tools/release/check_runtime_dependencies.sh
+  tools/release/README.md
+
+Implemented features:
+
+  - Godot export presets for:
+      OMT Monitor Linux
+      OMT Camera Mic Linux
+      OMT Test Pattern Linux
+      OMT Monitor Windows
+      OMT Camera Mic Windows
+      OMT Test Pattern Windows
+      OMT Monitor macOS
+      OMT Camera Mic macOS
+      OMT Test Pattern macOS
+  - Release script to export all presets.
+  - Runtime dependency checker for expected native libraries.
+  - Manual release validation checklist.
+
+
+Issues And Risks Encountered
+----------------------------
+
+1. Public GitHub URL was not fetchable
+
+The URL https://github.com/coleamckenna/godot-OMT returned 404 from public fetch,
+so implementation was grounded in the local project at:
+
+  /home/cole/om-tplugin
+
+
+2. Existing framework did not expose audio send
+
+The existing OMTOutput could publish viewport video and metadata, but did not expose
+audio sending. This was required for both the camera/microphone utility and the
+test pattern generator, so OMTOutput was extended with a GDScript-callable audio
+send API.
+
+
+3. Cross-platform camera support still needs real device testing
+
+The current utility uses Godot's CameraServer and CameraTexture APIs. This is the
+cleanest first implementation, but desktop camera support can vary by OS, Godot
+version, permissions, and driver stack. If CameraServer is incomplete on a target
+platform, a platform-specific native capture bridge may still be required.
+
+
+4. Cross-platform microphone support still needs real device testing
+
+The current utility uses AudioServer input device selection, AudioStreamMicrophone,
+and AudioEffectCapture. This should work through Godot's audio system, but it still
+needs validation on Linux, Windows, and macOS, especially around device names,
+permissions, channel layouts, and sample rates.
+
+
+5. Native runtime libraries are the likely packaging bottleneck
+
+The .gdextension manifest already contains Linux, Windows, and macOS library slots,
+but all target runtime binaries must exist in the expected bin folders before real
+exports are shippable. The release checker expects:
+
+  bin/linux/godot_omt.linux.template_release.x86_64.so
+  bin/linux/libomt.so
+  bin/linux/libvmx.so
+  bin/windows/godot_omt.windows.template_release.x86_64.dll
+  bin/macos/godot_omt.macos.template_release.universal.dylib
+
+Additional Windows/macOS libomt/libvmx packaging may also be required depending on
+how those native builds load their dependencies.
+
+
+6. Original validation command output was not useful in this environment
+
+I attempted to run basic validation commands, including Godot headless checking,
+a GDExtension build with REQUIRE_LIBOMT=0, and the runtime dependency checker.
+The shell tool returned empty output immediately for these commands, so I cannot
+honestly claim that Godot parsing, native compilation, or export packaging has
+been verified yet.
+
+Follow-up note:
+
+  A later pass found a local Godot 4.6 binary in the workspace and reran validation.
+  The utility scripts parse cleanly, the utility scenes start headlessly, and debug
+  plus release GDExtension builds complete on Linux. The release dependency checker
+  now confirms the Linux runtime files are present, but Windows and macOS native
+  binaries are still missing.
+
+
+Steps Left
+----------
+
+1. Open the project in Godot and manually verify the new scenes:
+
+  res://tools/monitor/omt_monitor.tscn
+  res://tools/camera_mic_sender/omt_camera_mic_sender.tscn
+  res://tools/test_pattern_generator/omt_test_pattern_generator.tscn
+
+Headless startup has been validated, but manual UI/device/transport testing is
+still required.
+
+
+2. Build the native GDExtension normally:
+
+  bash gdextension/build.sh
+  BUILD_TYPE=release bash gdextension/build.sh
+
+Completed successfully on Linux in the follow-up pass.
+
+
+3. Validate the audio send API at runtime:
+
+  - Start OMT Test Pattern.
+  - Enable tone.
+  - Connect OMT Monitor to the generated source.
+  - Confirm video arrives.
+  - Confirm audio frame metadata/statistics are visible.
+  - Confirm the receiving side sees OMT audio frames.
+
+
+4. Validate camera and microphone input:
+
+  - Open OMT Camera And Microphone.
+  - Confirm camera device list populates.
+  - Confirm microphone device list populates.
+  - Start publishing.
+  - Connect OMT Monitor.
+  - Confirm live camera video.
+  - Confirm microphone audio frames and meter activity.
+
+
+5. Test on each target OS:
+
+  - Linux
+  - Windows
+  - macOS
+
+Pay special attention to camera enumeration, microphone permissions, and native
+library loading.
+
+
+6. Complete native packaging for all targets:
+
+  - Build or obtain release GDExtension binaries for Windows and macOS.
+  - Stage libomt and libvmx runtime dependencies for Windows and macOS.
+  - Run tools/release/check_runtime_dependencies.sh.
+  - Adjust the checker if Windows/macOS runtime dependency filenames differ.
+
+
+7. Export release artifacts:
+
+  GODOT_BIN=/path/to/godot tools/release/export_all.sh
+
+
+8. Run the release checklist:
+
+  tools/release/README.md
+
+
+Current Todo State
+------------------
+
+Completed in implementation:
+
+  - OMT Monitor utility.
+  - Framework AV/audio send support.
+  - Camera And Microphone To OMT utility.
+  - Test Pattern Generator utility.
+  - Export presets, release scripts, dependency checker, and release checklist.
+
+Remaining validation:
+
+  The implementation files are in place, the utility scripts parse, the utility
+  scenes start headlessly, and Linux native compilation succeeds. Real Godot
+  editor/runtime validation with physical camera and microphone devices, live OMT
+  transport testing, and Windows/macOS packaging still need to be completed before
+  publishing.

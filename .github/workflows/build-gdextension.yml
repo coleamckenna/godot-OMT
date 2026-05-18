@@ -1,0 +1,77 @@
+name: Build GDExtension
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/build-gdextension.yml"
+      - "addons/godot_omt/**"
+      - "doc_classes/**"
+      - "gdextension/**"
+      - "third_party/libomt/include/**"
+
+env:
+  OMT_BINARIES_URL: https://github.com/openmediatransport/libomtnet/releases/download/v1.0.0.14/OpenMediaTransport.Binaries.Release.v1.0.0.14.zip
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build python3 curl
+      - name: Build Linux release
+        run: BUILD_TYPE=release bash gdextension/build.sh
+      - name: Upload Linux binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-omt-linux-x86_64
+          path: bin/linux/
+
+  build-windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Stage OMT Windows runtime
+        shell: bash
+        run: tools/release/stage_omt_desktop_runtimes.sh
+      - name: Configure Windows release
+        run: >
+          cmake -S gdextension -B gdextension/build-release
+          -DGODOTCPP_TARGET=template_release
+          -DCMAKE_BUILD_TYPE=Release
+          -DGODOT_OMT_REQUIRE_LIBOMT=ON
+      - name: Build Windows release
+        run: cmake --build gdextension/build-release --config Release --parallel
+      - name: Upload Windows binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-omt-windows-x86_64
+          path: bin/windows/
+
+  build-macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Stage OMT macOS runtime
+        run: tools/release/stage_omt_desktop_runtimes.sh
+      - name: Configure macOS universal release
+        run: >
+          cmake -S gdextension -B gdextension/build-release
+          -DGODOTCPP_TARGET=template_release
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
+          -DGODOT_OMT_REQUIRE_LIBOMT=ON
+      - name: Build macOS universal release
+        run: cmake --build gdextension/build-release --config Release --parallel
+      - name: Upload macOS binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-omt-macos-universal
+          path: bin/macos/

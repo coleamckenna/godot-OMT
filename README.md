@@ -8,6 +8,8 @@ This project is an early native Godot addon for receiving OMT video as Godot tex
 
 This is prototype-quality software. The clean loopback demo works on Linux with Godot 4.6 using Vulkan/Forward+, but the API surface and packaging are still expected to change.
 
+Apologies up front: this repository is currently AI slop in the literal sense that a lot of the demo and utility scaffolding was assembled quickly with AI assistance. It is useful for exploration and smoke testing, but it still needs real review, cleanup, device testing, and platform-specific hardening before it should be treated as production software.
+
 ## Features
 
 - `OMTReceiver` receives OMT video frames into a `Texture2D`.
@@ -36,6 +38,25 @@ From there you can open focused scenes for:
 
 The clean loopback scene remains the best smoke test after building the extension.
 
+### Demo Purposes
+
+- `Runtime Status` shows the native OMT runtime availability helpers and any load errors.
+- `Discovery` exercises `OMTDiscovery` refreshes, source-added/source-removed signals, and source list rendering.
+- `Receiver Texture` shows an `OMTReceiver` texture in Godot using test-pattern mode.
+- `Output` publishes an animated `SubViewport` through `OMTOutput`.
+- `Clean Loopback` sends a local `SubViewport` through `OMTOutput` and receives it back through `OMTReceiver`.
+- `Video Stream` demonstrates the early `OMTVideoStream` / `VideoStreamPlayer` integration path.
+
+## Standalone Utilities
+
+The project also contains three utility scenes intended to be exported as small desktop apps:
+
+- `OMT Monitor` (`res://tools/monitor/omt_monitor.tscn`) discovers OMT sources, connects to a selected source, displays the received texture, and shows video, audio, metadata, and sender statistics. It uses full-quality receiver settings by default and its fullscreen button only expands the OMT stream inside the app UI instead of switching the whole OS window to fullscreen.
+- `OMT Camera Mic` (`res://tools/camera_mic_sender/omt_camera_mic_sender.tscn`) publishes a selected Godot `CameraServer` feed and microphone input as an OMT source. It activates the selected `CameraTexture`, renders it through a `SubViewport`, captures microphone samples with `AudioEffectCapture`, and defaults to higher output quality.
+- `OMT Test Pattern` (`res://tools/test_pattern_generator/omt_test_pattern_generator.tscn`) publishes generated SMPTE-style bars, checkerboard, or grid patterns with metadata and a sine-wave test tone. The tone is sent over OMT and also played locally through Godot's `AudioStreamGenerator` so you can confirm audio output without needing a separate receiver.
+
+Export presets for Linux, Windows, and macOS live in `export_presets.cfg`. Linux exports can be produced locally once the Linux GDExtension and OMT runtime libraries are staged. Windows and macOS exports require matching native GDExtension binaries in `bin/windows` and `bin/macos`; the GitHub Actions build workflow is the intended path for those artifacts.
+
 ## Repository Layout
 
 ```text
@@ -44,6 +65,7 @@ doc_classes/              Godot class reference XML
 gdextension/              C++ GDExtension source and build scripts
 scenes/                   Demo scenes
 scripts/                  Demo scripts
+tools/                    Standalone OMT utilities and release scripts
 third_party/libomt/        libomt staging/build helper scripts
 ```
 

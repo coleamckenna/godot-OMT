@@ -3,6 +3,7 @@
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/node_path.hpp>
+#include <godot_cpp/variant/packed_float32_array.hpp>
 #include <godot_cpp/variant/string.hpp>
 #include <vector>
 
@@ -25,10 +26,15 @@ private:
 	String last_error;
 	int64_t frames_sent = 0;
 	int64_t frames_attempted = 0;
+	int64_t audio_frames_sent = 0;
+	int64_t audio_frames_attempted = 0;
+	int64_t audio_samples_sent = 0;
 	int last_send_result = 0;
+	int last_audio_send_result = 0;
 	int64_t last_frame_checksum = 0;
 	int64_t readback_callbacks = 0;
 	std::vector<uint8_t> send_bgra;
+	std::vector<float> send_audio_planar;
 	Viewport *registered_viewport = nullptr;
 
 #ifndef GODOT_OMT_NO_LIBOMT
@@ -62,7 +68,11 @@ public:
 	String get_last_error() const;
 	int64_t get_frames_sent() const;
 	int64_t get_frames_attempted() const;
+	int64_t get_audio_frames_sent() const;
+	int64_t get_audio_frames_attempted() const;
+	int64_t get_audio_samples_sent() const;
 	int get_last_send_result() const;
+	int get_last_audio_send_result() const;
 	int64_t get_last_frame_checksum() const;
 	Dictionary get_router_status() const;
 
@@ -81,6 +91,7 @@ public:
 	void set_metadata(const String &p_metadata);
 	String get_metadata() const;
 	void send_metadata(const String &p_metadata);
+	void send_audio_frame(const PackedFloat32Array &p_interleaved_samples, int p_sample_rate, int p_channels);
 };
 
 } // namespace godot

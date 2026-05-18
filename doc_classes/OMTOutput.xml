@@ -4,6 +4,17 @@
 		Sends a Viewport as an Open Media Transport source.
 	</brief_description>
 	<description>
-		Set source_name and enabled to publish the selected viewport over OMT.
+		Set source_name and enabled to publish the selected viewport over OMT. Audio can be sent with send_audio_frame() while the output is running.
 	</description>
+	<methods>
+		<method name="send_audio_frame">
+			<return type="void" />
+			<param index="0" name="interleaved_samples" type="PackedFloat32Array" />
+			<param index="1" name="sample_rate" type="int" />
+			<param index="2" name="channels" type="int" />
+			<description>
+				Sends interleaved 32-bit floating point PCM samples as an OMT FPA1 audio frame. The method converts the samples to planar audio before sending.
+			</description>
+		</method>
+	</methods>
 </class>

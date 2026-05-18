@@ -1,0 +1,146 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tools/monitor/omt_monitor.gd" id="1_monitor"]
+
+[node name="OMTMonitor" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_monitor")
+
+[node name="OMTDiscovery" type="OMTDiscovery" parent="."]
+
+[node name="OMTReceiver" type="OMTReceiver" parent="."]
+auto_start = false
+quality = 100
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Layout"]
+layout_mode = 2
+text = "OMT Monitor"
+horizontal_alignment = 1
+
+[node name="Header" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RefreshButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Refresh"
+
+[node name="SourcePicker" type="OptionButton" parent="Layout/Header"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+
+[node name="AddressField" type="LineEdit" parent="Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "OMT source address"
+
+[node name="ConnectButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Connect"
+
+[node name="DisconnectButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Disconnect"
+
+[node name="FullscreenButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Stream Fullscreen"
+
+[node name="Body" type="HSplitContainer" parent="Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = -320
+
+[node name="PreviewPanel" type="PanelContainer" parent="Layout/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="Layout/Body/PreviewPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Preview" type="TextureRect" parent="Layout/Body/PreviewPanel/Margin"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StatsPanel" type="PanelContainer" parent="Layout/Body"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Layout/Body/StatsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Stats" type="RichTextLabel" parent="Layout/Body/StatsPanel/Margin"]
+layout_mode = 2
+bbcode_enabled = false
+scroll_following = true
+
+[node name="StatusLabel" type="Label" parent="Layout"]
+layout_mode = 2
+text = "State: disconnected"
+autowrap_mode = 3
+
+[node name="RuntimeLabel" type="Label" parent="Layout"]
+layout_mode = 2
+text = "OMT runtime: checking..."
+autowrap_mode = 3
+
+[node name="FullscreenLayer" type="CanvasLayer" parent="."]
+visible = false
+layer = 10
+
+[node name="Background" type="ColorRect" parent="FullscreenLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="FullscreenPreview" type="TextureRect" parent="FullscreenLayer/Background"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CloseButton" type="Button" parent="FullscreenLayer/Background"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -148.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 47.0
+grow_horizontal = 0
+text = "Exit Fullscreen"
