@@ -1,0 +1,73 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/omt_video_stream_demo.gd" id="1_video"]
+
+[node name="OMTVideoStreamDemo" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_video")
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Back"
+
+[node name="Title" type="Label" parent="Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "OMTVideoStream Demo"
+horizontal_alignment = 1
+
+[node name="PlayButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Play"
+
+[node name="StopButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Stop"
+
+[node name="Description" type="Label" parent="Layout"]
+layout_mode = 2
+text = "OMTVideoStream is a VideoStream resource that can be assigned to Godot's VideoStreamPlayer."
+autowrap_mode = 3
+
+[node name="PlayerPanel" type="PanelContainer" parent="Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Margin" type="MarginContainer" parent="Layout/PlayerPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="Layout/PlayerPanel/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+expand = true
+
+[node name="StatusLabel" type="Label" parent="Layout"]
+layout_mode = 2
+text = "Creating OMTVideoStream..."
+autowrap_mode = 3

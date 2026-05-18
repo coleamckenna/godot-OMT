@@ -1,0 +1,95 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/omt_output_demo.gd" id="1_output"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="2_icon"]
+
+[node name="OMTOutputDemo" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_output")
+
+[node name="OMTOutput" type="OMTOutput" parent="."]
+enabled = false
+quality = 50
+frame_rate = 30
+
+[node name="SubViewport" type="SubViewport" parent="."]
+size = Vector2i(512, 512)
+render_target_update_mode = 4
+
+[node name="SourceBackground" type="ColorRect" parent="SubViewport"]
+offset_right = 512.0
+offset_bottom = 512.0
+color = Color(0.2, 0.2, 0.8, 1)
+
+[node name="SourceSprite" type="Sprite2D" parent="SubViewport"]
+position = Vector2(256, 256)
+texture = ExtResource("2_icon")
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+
+[node name="BackButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Back"
+
+[node name="Title" type="Label" parent="Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "OMTOutput Viewport Demo"
+horizontal_alignment = 1
+
+[node name="StartButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Start"
+
+[node name="StopButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Stop"
+
+[node name="MetadataButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Send Metadata"
+
+[node name="Description" type="Label" parent="Layout"]
+layout_mode = 2
+text = "OMTOutput publishes the animated SubViewport below as a network source."
+autowrap_mode = 3
+
+[node name="PreviewPanel" type="PanelContainer" parent="Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Margin" type="MarginContainer" parent="Layout/PreviewPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Preview" type="TextureRect" parent="Layout/PreviewPanel/Margin"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StatusLabel" type="Label" parent="Layout"]
+layout_mode = 2
+text = "Starting output..."
+autowrap_mode = 3
