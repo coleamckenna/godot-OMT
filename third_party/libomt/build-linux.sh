@@ -11,17 +11,13 @@
 #   <WORK_ROOT>/libomt
 #   <WORK_ROOT>/libvmx
 #
-# By default it reuses /home/cole/omt-obs-linux if present because that tree
-# already has libomtnet/libvmx checkouts from the OBS OMT Linux work.
+# Set OMT_WORK_ROOT to reuse an existing upstream checkout. By default, this
+# script creates a repo-local work tree under .build/omt.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-WORK_ROOT="${OMT_WORK_ROOT:-/home/cole/omt-obs-linux}"
-
-if [[ ! -d "${WORK_ROOT}" ]]; then
-	WORK_ROOT="${OMT_WORK_ROOT:-${PROJECT_ROOT}/.build/omt}"
-fi
+WORK_ROOT="${OMT_WORK_ROOT:-${PROJECT_ROOT}/.build/omt}"
 
 log() {
 	printf '==> %s\n' "$*"

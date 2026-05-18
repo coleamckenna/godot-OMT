@@ -51,7 +51,6 @@ grow_vertical = 2
 script = ExtResource("1_view")
 
 [node name="OMTReceiver" type="OMTReceiver" parent="." unique_id=561583116]
-source_address = "COLE-HP-PAVILION-X360-2-IN-1-LAPTOP-14-EK0XXX (Godot OMT Outpu)"
 quality = 1
 
 [node name="OMTDiscovery" type="OMTDiscovery" parent="." unique_id=325534261]

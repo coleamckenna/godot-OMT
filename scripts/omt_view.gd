@@ -16,7 +16,6 @@ func _ready() -> void:
 	_omt.frame_ready.connect(_on_frame_ready)
 	_animation_player.play("new_animation")
 	_on_frame_ready()
-	print(OMTReceiver.discover_sources())
 
 
 func _process(delta: float) -> void:
