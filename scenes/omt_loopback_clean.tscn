@@ -49,8 +49,16 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="Layout"]
+[node name="Header" type="HBoxContainer" parent="Layout"]
 layout_mode = 2
+
+[node name="BackButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Back"
+
+[node name="Title" type="Label" parent="Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "OMT Loopback Clean Demo"
 horizontal_alignment = 1
 

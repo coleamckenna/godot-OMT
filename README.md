@@ -17,21 +17,24 @@ This is prototype-quality software. The clean loopback demo works on Linux with 
 - `OMTVideoStream` and `OMTVideoStreamPlayback` provide the start of a `VideoStreamPlayer` integration.
 - `addons/godot_omt` adds editor tooling, including a refreshable source picker for receiver source addresses.
 
-## Demo
+## Demos
 
-The default scene is:
-
-```text
-res://scenes/omt_loopback_clean.tscn
-```
-
-It shows a local animated `SubViewport` beside the texture received back through:
+The default scene is now a demo menu:
 
 ```text
-OMTOutput -> libomt -> OMTReceiver
+res://scenes/omt_demo_menu.tscn
 ```
 
-This is the best smoke test after building the extension.
+From there you can open focused scenes for:
+
+- `OMT` runtime status helpers.
+- `OMTDiscovery` source refreshes and source change signals.
+- `OMTReceiver` texture display using test-pattern mode.
+- `OMTOutput` publishing an animated `SubViewport`.
+- `OMTOutput -> libomt -> OMTReceiver` clean loopback.
+- `OMTVideoStream` assigned to a `VideoStreamPlayer`.
+
+The clean loopback scene remains the best smoke test after building the extension.
 
 ## Repository Layout
 

@@ -3,6 +3,7 @@ extends Control
 @onready var _subviewport: SubViewport = $SubViewport
 @onready var _source_background: ColorRect = $SubViewport/SourceBackground
 @onready var _source_sprite: Sprite2D = $SubViewport/SourceSprite
+@onready var _back_button: Button = $Layout/Header/BackButton
 @onready var _local_preview: TextureRect = $Layout/Previews/LocalColumn/LocalPreview
 @onready var _received_preview: TextureRect = $Layout/Previews/ReceivedColumn/ReceivedPreview
 @onready var _status_label: Label = $Layout/StatusLabel
@@ -15,6 +16,7 @@ var _status_timer := 0.0
 
 
 func _ready() -> void:
+	_back_button.pressed.connect(_go_back)
 	_subviewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	_local_preview.texture = _subviewport.get_texture()
 	_receiver.frame_ready.connect(_on_receiver_frame_ready)
@@ -98,3 +100,10 @@ func _on_receiver_frame_ready() -> void:
 	var received_texture := _receiver.get_texture()
 	if received_texture:
 		_received_preview.texture = received_texture
+
+
+func _go_back() -> void:
+	_output.enabled = false
+	_output.stop()
+	_receiver.stop()
+	get_tree().change_scene_to_file("res://scenes/omt_demo_menu.tscn")
