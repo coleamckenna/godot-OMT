@@ -1,13 +1,7 @@
 OMT Utilities Implementation Status
 Generated: 2026-05-18
 
-Scope
------
-This work implements the planned Godot OMT utilities inside the local project:
 
-  /home/cole/om-tplugin
-
-The original plan file was not edited.
 
 
 What Has Been Implemented
