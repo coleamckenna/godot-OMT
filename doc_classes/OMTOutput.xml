@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="OMTOutput" inherits="Node" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<brief_description>
+		Sends a Viewport as an Open Media Transport source.
+	</brief_description>
+	<description>
+		Set source_name and enabled to publish the selected viewport over OMT.
+	</description>
+</class>

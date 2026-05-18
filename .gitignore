@@ -1,0 +1,17 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+.vscode/
+
+# Local backup files
+* (copy).*
+
+# GDExtension build artifacts
+bin/
+gdextension/build-*/
+gdextension/godot-cpp/build*/
+third_party/libomt/lib/
+third_party/libomt/lib64/
+*.so
+*.dll
+*.dylib

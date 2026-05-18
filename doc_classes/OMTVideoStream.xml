@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="OMTVideoStream" inherits="VideoStream" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<brief_description>
+		VideoStream resource for OMT sources.
+	</brief_description>
+	<description>
+		Assign to a VideoStreamPlayer to play an OMT source through Godot's video playback API.
+	</description>
+</class>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="OMT" inherits="Object" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<brief_description>
+		Runtime status helpers for the Open Media Transport GDExtension.
+	</brief_description>
+	<description>
+		Provides static methods for checking whether this build was compiled with libomt support.
+	</description>
+</class>

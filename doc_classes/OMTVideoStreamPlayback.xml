@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="OMTVideoStreamPlayback" inherits="VideoStreamPlayback" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<brief_description>
+		Runtime playback object created by OMTVideoStream.
+	</brief_description>
+	<description>
+		Managed internally by Godot when an OMTVideoStream is assigned to a VideoStreamPlayer.
+	</description>
+</class>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="OMTDiscovery" inherits="Node" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<brief_description>
+		Discovers Open Media Transport sources on the network.
+	</brief_description>
+	<description>
+		Call refresh() to query available OMT source addresses and emit source change signals.
+	</description>
+</class>

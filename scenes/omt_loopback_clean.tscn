@@ -1,0 +1,99 @@
+[gd_scene load_steps=3 format=3 uid="uid://omt_loopback_clean"]
+
+[ext_resource type="Script" path="res://scripts/omt_loopback_clean.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="2_icon"]
+
+[node name="OMTLoopbackClean" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="OMTOutput" type="OMTOutput" parent="."]
+enabled = false
+quality = 1
+frame_rate = 30
+
+[node name="OMTReceiver" type="OMTReceiver" parent="."]
+auto_start = false
+quality = 1
+preferred_format = 2
+
+[node name="SubViewport" type="SubViewport" parent="."]
+size = Vector2i(512, 512)
+transparent_bg = false
+render_target_update_mode = 4
+
+[node name="SourceBackground" type="ColorRect" parent="SubViewport"]
+offset_right = 512.0
+offset_bottom = 512.0
+color = Color(0.1, 0.2, 0.8, 1)
+
+[node name="SourceSprite" type="Sprite2D" parent="SubViewport"]
+position = Vector2(256, 256)
+texture = ExtResource("2_icon")
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Layout"]
+layout_mode = 2
+text = "OMT Loopback Clean Demo"
+horizontal_alignment = 1
+
+[node name="Previews" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="LocalColumn" type="VBoxContainer" parent="Layout/Previews"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LocalLabel" type="Label" parent="Layout/Previews/LocalColumn"]
+layout_mode = 2
+text = "Local SubViewport"
+horizontal_alignment = 1
+
+[node name="LocalPreview" type="TextureRect" parent="Layout/Previews/LocalColumn"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ReceivedColumn" type="VBoxContainer" parent="Layout/Previews"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ReceivedLabel" type="Label" parent="Layout/Previews/ReceivedColumn"]
+layout_mode = 2
+text = "Received OMT Texture"
+horizontal_alignment = 1
+
+[node name="ReceivedPreview" type="TextureRect" parent="Layout/Previews/ReceivedColumn"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StatusLabel" type="Label" parent="Layout"]
+layout_mode = 2
+text = "Starting..."
+autowrap_mode = 3

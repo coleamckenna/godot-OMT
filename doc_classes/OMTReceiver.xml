@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="OMTReceiver" inherits="Node" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<brief_description>
+		Receives OMT video frames and exposes them as a Godot Texture2D.
+	</brief_description>
+	<description>
+		Use source_address to select an OMT source, then read get_texture() or listen for frame_ready.
+	</description>
+</class>
