@@ -37,8 +37,9 @@ Implemented features:
   - OMT source discovery using OMTDiscovery.
   - Source picker plus manual address field.
   - Connect and disconnect controls.
-  - Live playback using OMTReceiver.get_texture().
-  - Fullscreen/windowed toggle.
+  - Full-quality live playback using OMTReceiver.get_texture().
+  - Stream-only fullscreen overlay that expands the OMT texture inside the app
+    window instead of switching the whole OS window to fullscreen.
   - Runtime status banner.
   - Receiver status line showing connection state, source, and last error.
   - Stats panel showing display, video, audio, last audio frame, sender info,
@@ -97,11 +98,13 @@ Implemented features:
   - FPS and quality controls.
   - Audio enable and mute controls.
   - Camera preview rendered into a SubViewport.
+  - CameraTexture activation for the selected camera feed.
   - OMTOutput publishing that SubViewport.
   - AudioStreamMicrophone capture through AudioEffectCapture.
   - Audio level meter.
   - Microphone audio sent through OMTOutput.send_audio_frame().
   - Start/stop controls and status/errors.
+  - Default output quality raised to 90 for clearer monitor playback.
 
 Implementation note:
 
@@ -132,8 +135,10 @@ Implemented features:
   - Metadata send button.
   - Generated sine tone.
   - Tone frequency control.
+  - Local tone monitoring through AudioStreamGenerator.
   - Video published through OMTOutput from a SubViewport.
   - Audio tone published through OMTOutput.send_audio_frame().
+  - Default output quality raised to 90 for clearer monitor playback.
 
 
 6. Export and release support
