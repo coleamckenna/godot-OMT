@@ -1,0 +1,130 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://tools/test_pattern_generator/omt_test_pattern_generator.gd" id="1_generator"]
+[ext_resource type="Script" path="res://tools/test_pattern_generator/test_pattern_canvas.gd" id="2_canvas"]
+
+[node name="OMTTestPatternGenerator" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_generator")
+
+[node name="OMTOutput" type="OMTOutput" parent="."]
+enabled = false
+quality = 50
+frame_rate = 30
+
+[node name="SubViewport" type="SubViewport" parent="."]
+size = Vector2i(1280, 720)
+render_target_update_mode = 4
+
+[node name="PatternCanvas" type="Control" parent="SubViewport"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+script = ExtResource("2_canvas")
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Layout"]
+layout_mode = 2
+text = "OMT Test Pattern Generator"
+horizontal_alignment = 1
+
+[node name="Header" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SourceNameField" type="LineEdit" parent="Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Godot OMT Test Pattern"
+placeholder_text = "Source name"
+
+[node name="StartButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Start"
+
+[node name="StopButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Stop"
+
+[node name="MetadataButton" type="Button" parent="Layout/Header"]
+layout_mode = 2
+text = "Send Metadata"
+
+[node name="Controls" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PatternPicker" type="OptionButton" parent="Layout/Controls"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+
+[node name="ResolutionPicker" type="OptionButton" parent="Layout/Controls"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+
+[node name="FpsSpin" type="SpinBox" parent="Layout/Controls"]
+layout_mode = 2
+min_value = 1.0
+max_value = 120.0
+value = 30.0
+
+[node name="QualitySpin" type="SpinBox" parent="Layout/Controls"]
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+value = 50.0
+
+[node name="ToneEnabled" type="CheckBox" parent="Layout/Controls"]
+layout_mode = 2
+button_pressed = true
+text = "Tone"
+
+[node name="ToneFrequency" type="SpinBox" parent="Layout/Controls"]
+layout_mode = 2
+min_value = 20.0
+max_value = 20000.0
+value = 1000.0
+
+[node name="PreviewPanel" type="PanelContainer" parent="Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Margin" type="MarginContainer" parent="Layout/PreviewPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Preview" type="TextureRect" parent="Layout/PreviewPanel/Margin"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StatusLabel" type="Label" parent="Layout"]
+layout_mode = 2
+text = "running: false"
+autowrap_mode = 3
+
+[node name="RuntimeLabel" type="Label" parent="Layout"]
+layout_mode = 2
+text = "OMT runtime: checking..."
+autowrap_mode = 3

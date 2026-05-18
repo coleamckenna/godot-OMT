@@ -1,7 +1,10 @@
 # Godot 4+ specific ignores
 .godot/
+/builds/
+/.build/
 /android/
 .vscode/
+Godot_v*_linux.x86_64
 
 # Local backup files
 * (copy).*
