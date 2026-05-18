@@ -30,6 +30,7 @@ const AUDIO_CHUNK_FRAMES := 1024
 var _capture_effect: AudioEffectCapture
 var _capture_bus_index := -1
 var _status_timer := 0.0
+var _selected_camera_texture: Texture2D
 
 
 func _ready() -> void:
@@ -70,7 +71,7 @@ func _setup_resolution_options() -> void:
 		_resolution_picker.add_item(item)
 	_resolution_picker.select(0)
 	_fps_spin.value = 30
-	_quality_spin.value = 50
+	_quality_spin.value = 90
 
 
 func _refresh_devices() -> void:
@@ -98,6 +99,7 @@ func _refresh_devices() -> void:
 
 func _apply_camera_selection() -> void:
 	if _camera_picker.item_count == 0 or _camera_picker.is_item_disabled(_camera_picker.selected):
+		_selected_camera_texture = null
 		_camera_rect.texture = null
 		_fallback_label.visible = true
 		return
@@ -107,9 +109,11 @@ func _apply_camera_selection() -> void:
 	if feed != null and feed.has_method("set_active"):
 		feed.call("set_active", true)
 
-	var texture := OMTCaptureDevices.create_camera_texture(int(device["id"]))
-	_camera_rect.texture = texture
-	_fallback_label.visible = texture == null
+	_selected_camera_texture = OMTCaptureDevices.create_camera_texture(int(device["id"]))
+	_camera_rect.texture = _selected_camera_texture
+	_fallback_label.visible = _selected_camera_texture == null
+	if _selected_camera_texture == null:
+		_status_label.text = "Camera feed selected, but Godot did not create a CameraTexture for it."
 
 
 func _apply_resolution_selection() -> void:

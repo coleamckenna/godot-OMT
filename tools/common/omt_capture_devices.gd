@@ -44,4 +44,8 @@ static func create_camera_texture(feed_id: int) -> Texture2D:
 		texture.call("set_camera_feed_id", feed_id)
 	else:
 		texture.set("camera_feed_id", feed_id)
+	if texture.has_method("set_camera_active"):
+		texture.call("set_camera_active", true)
+	else:
+		texture.set("camera_is_active", true)
 	return texture as Texture2D

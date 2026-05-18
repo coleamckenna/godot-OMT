@@ -9,6 +9,9 @@ const OMTTools = preload("res://tools/common/omt_tools.gd")
 @onready var _disconnect_button: Button = $Layout/Header/DisconnectButton
 @onready var _fullscreen_button: Button = $Layout/Header/FullscreenButton
 @onready var _preview: TextureRect = $Layout/Body/PreviewPanel/Margin/Preview
+@onready var _fullscreen_layer: CanvasLayer = $FullscreenLayer
+@onready var _fullscreen_preview: TextureRect = $FullscreenLayer/Background/FullscreenPreview
+@onready var _close_fullscreen_button: Button = $FullscreenLayer/Background/CloseButton
 @onready var _stats: RichTextLabel = $Layout/Body/StatsPanel/Margin/Stats
 @onready var _status_label: Label = $Layout/StatusLabel
 @onready var _runtime_label: Label = $Layout/RuntimeLabel
@@ -25,6 +28,7 @@ func _ready() -> void:
 	_connect_button.pressed.connect(_connect_source)
 	_disconnect_button.pressed.connect(_disconnect_source)
 	_fullscreen_button.pressed.connect(_toggle_fullscreen)
+	_close_fullscreen_button.pressed.connect(_set_stream_fullscreen.bind(false))
 	_discovery.sources_changed.connect(_render_sources)
 	_discovery.source_added.connect(func(_source: String) -> void: _render_sources())
 	_discovery.source_removed.connect(func(_source: String) -> void: _render_sources())
@@ -34,7 +38,8 @@ func _ready() -> void:
 	_receiver.audio_frame_received.connect(func(_audio_info: Dictionary) -> void: _update_status())
 
 	_receiver.auto_start = false
-	_receiver.preview_mode = true
+	_receiver.preview_mode = false
+	_receiver.quality = 100
 	_runtime_label.text = OMTTools.runtime_status_text()
 	_refresh_sources()
 	_update_status()
@@ -86,7 +91,8 @@ func _connect_source() -> void:
 	_receiver.stop()
 	_receiver.source_address = source_address
 	_receiver.use_test_pattern = false
-	_receiver.preview_mode = true
+	_receiver.preview_mode = false
+	_receiver.quality = 100
 	_receiver.start()
 	_update_preview()
 	_update_status()
@@ -101,6 +107,7 @@ func _update_preview() -> void:
 	var texture := _receiver.get_texture()
 	if texture:
 		_preview.texture = texture
+		_fullscreen_preview.texture = texture
 
 
 func _update_status() -> void:
@@ -127,13 +134,18 @@ func _update_status() -> void:
 
 
 func _toggle_fullscreen() -> void:
-	var mode := DisplayServer.window_get_mode()
-	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-		_fullscreen_button.text = "Fullscreen"
-	else:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
-		_fullscreen_button.text = "Windowed"
+	_set_stream_fullscreen(not _fullscreen_layer.visible)
+
+
+func _set_stream_fullscreen(enabled: bool) -> void:
+	_fullscreen_layer.visible = enabled
+	_fullscreen_button.text = "Exit Stream Fullscreen" if enabled else "Stream Fullscreen"
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") and _fullscreen_layer.visible:
+		_set_stream_fullscreen(false)
+		get_viewport().set_input_as_handled()
 
 
 func _state_name(state: int) -> String:

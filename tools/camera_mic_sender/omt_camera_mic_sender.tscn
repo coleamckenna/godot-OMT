@@ -13,7 +13,7 @@ script = ExtResource("1_sender")
 
 [node name="OMTOutput" type="OMTOutput" parent="."]
 enabled = false
-quality = 50
+quality = 90
 frame_rate = 30
 
 [node name="MicPlayer" type="AudioStreamPlayer" parent="."]
@@ -101,7 +101,7 @@ value = 30.0
 layout_mode = 2
 min_value = 0.0
 max_value = 100.0
-value = 50.0
+value = 90.0
 
 [node name="AudioEnabled" type="CheckBox" parent="Layout/Controls"]
 layout_mode = 2

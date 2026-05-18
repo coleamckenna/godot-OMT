@@ -15,7 +15,7 @@ script = ExtResource("1_monitor")
 
 [node name="OMTReceiver" type="OMTReceiver" parent="."]
 auto_start = false
-preview_mode = true
+quality = 100
 
 [node name="Layout" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -62,7 +62,7 @@ text = "Disconnect"
 
 [node name="FullscreenButton" type="Button" parent="Layout/Header"]
 layout_mode = 2
-text = "Fullscreen"
+text = "Stream Fullscreen"
 
 [node name="Body" type="HSplitContainer" parent="Layout"]
 layout_mode = 2
@@ -110,3 +110,37 @@ autowrap_mode = 3
 layout_mode = 2
 text = "OMT runtime: checking..."
 autowrap_mode = 3
+
+[node name="FullscreenLayer" type="CanvasLayer" parent="."]
+visible = false
+layer = 10
+
+[node name="Background" type="ColorRect" parent="FullscreenLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="FullscreenPreview" type="TextureRect" parent="FullscreenLayer/Background"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CloseButton" type="Button" parent="FullscreenLayer/Background"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -148.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 47.0
+grow_horizontal = 0
+text = "Exit Fullscreen"
