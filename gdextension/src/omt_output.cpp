@@ -35,10 +35,15 @@ void OMTOutput::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_last_error"), &OMTOutput::get_last_error);
 	ClassDB::bind_method(D_METHOD("get_frames_sent"), &OMTOutput::get_frames_sent);
 	ClassDB::bind_method(D_METHOD("get_frames_attempted"), &OMTOutput::get_frames_attempted);
+	ClassDB::bind_method(D_METHOD("get_audio_frames_sent"), &OMTOutput::get_audio_frames_sent);
+	ClassDB::bind_method(D_METHOD("get_audio_frames_attempted"), &OMTOutput::get_audio_frames_attempted);
+	ClassDB::bind_method(D_METHOD("get_audio_samples_sent"), &OMTOutput::get_audio_samples_sent);
 	ClassDB::bind_method(D_METHOD("get_last_send_result"), &OMTOutput::get_last_send_result);
+	ClassDB::bind_method(D_METHOD("get_last_audio_send_result"), &OMTOutput::get_last_audio_send_result);
 	ClassDB::bind_method(D_METHOD("get_last_frame_checksum"), &OMTOutput::get_last_frame_checksum);
 	ClassDB::bind_method(D_METHOD("get_router_status"), &OMTOutput::get_router_status);
 	ClassDB::bind_method(D_METHOD("send_metadata", "metadata"), &OMTOutput::send_metadata);
+	ClassDB::bind_method(D_METHOD("send_audio_frame", "interleaved_samples", "sample_rate", "channels"), &OMTOutput::send_audio_frame);
 
 	ClassDB::bind_method(D_METHOD("set_source_name", "name"), &OMTOutput::set_source_name);
 	ClassDB::bind_method(D_METHOD("get_source_name"), &OMTOutput::get_source_name);
@@ -67,6 +72,7 @@ void OMTOutput::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("started"));
 	ADD_SIGNAL(MethodInfo("stopped"));
 	ADD_SIGNAL(MethodInfo("frame_sent"));
+	ADD_SIGNAL(MethodInfo("audio_frame_sent"));
 	ADD_SIGNAL(MethodInfo("metadata_sent", PropertyInfo(Variant::STRING, "metadata")));
 	ADD_SIGNAL(MethodInfo("error", PropertyInfo(Variant::STRING, "message")));
 }
@@ -141,8 +147,24 @@ int64_t OMTOutput::get_frames_attempted() const {
 	return frames_attempted;
 }
 
+int64_t OMTOutput::get_audio_frames_sent() const {
+	return audio_frames_sent;
+}
+
+int64_t OMTOutput::get_audio_frames_attempted() const {
+	return audio_frames_attempted;
+}
+
+int64_t OMTOutput::get_audio_samples_sent() const {
+	return audio_samples_sent;
+}
+
 int OMTOutput::get_last_send_result() const {
 	return last_send_result;
+}
+
+int OMTOutput::get_last_audio_send_result() const {
+	return last_audio_send_result;
 }
 
 int64_t OMTOutput::get_last_frame_checksum() const {
@@ -245,6 +267,61 @@ String OMTOutput::get_metadata() const {
 
 void OMTOutput::send_metadata(const String &p_metadata) {
 	_send_metadata_frame(p_metadata);
+}
+
+void OMTOutput::send_audio_frame(const PackedFloat32Array &p_interleaved_samples, int p_sample_rate, int p_channels) {
+#ifndef GODOT_OMT_NO_LIBOMT
+	if (omt_send_handle == nullptr) {
+		last_error = "Cannot send audio before OMTOutput is running.";
+		emit_signal("error", last_error);
+		return;
+	}
+	if (p_sample_rate <= 0) {
+		last_error = "Audio sample rate must be greater than zero.";
+		emit_signal("error", last_error);
+		return;
+	}
+	if (p_channels <= 0 || p_channels > 32) {
+		last_error = "Audio channel count must be between 1 and 32.";
+		emit_signal("error", last_error);
+		return;
+	}
+	if (p_interleaved_samples.is_empty() || p_interleaved_samples.size() % p_channels != 0) {
+		last_error = "Audio sample data must be non-empty interleaved float32 data.";
+		emit_signal("error", last_error);
+		return;
+	}
+
+	const int samples_per_channel = p_interleaved_samples.size() / p_channels;
+	send_audio_planar.resize(static_cast<size_t>(p_interleaved_samples.size()));
+	for (int sample = 0; sample < samples_per_channel; ++sample) {
+		for (int channel = 0; channel < p_channels; ++channel) {
+			send_audio_planar[static_cast<size_t>(channel * samples_per_channel + sample)] =
+					p_interleaved_samples[sample * p_channels + channel];
+		}
+	}
+
+	OMTMediaFrame frame = {};
+	frame.Type = OMTFrameType_Audio;
+	frame.Timestamp = -1;
+	frame.Codec = OMTCodec_FPA1;
+	frame.SampleRate = p_sample_rate;
+	frame.Channels = p_channels;
+	frame.SamplesPerChannel = samples_per_channel;
+	frame.Data = send_audio_planar.data();
+	frame.DataLength = static_cast<int>(send_audio_planar.size() * sizeof(float));
+
+	audio_frames_attempted++;
+	last_audio_send_result = omt_send(static_cast<omt_send_t *>(omt_send_handle), &frame);
+	if (last_audio_send_result == 0) {
+		audio_frames_sent++;
+		audio_samples_sent += samples_per_channel;
+		emit_signal("audio_frame_sent");
+	}
+#else
+	last_error = "This build was compiled without libomt";
+	emit_signal("error", last_error);
+#endif
 }
 
 void OMTOutput::_create_sender() {
@@ -438,7 +515,7 @@ void OMTOutput::_send_metadata_frame(const String &p_metadata) {
 	frame.Timestamp = -1;
 	frame.Data = const_cast<char *>(metadata_utf8.get_data());
 	frame.DataLength = static_cast<int>(metadata_utf8.length()) + 1;
-	if (omt_send(static_cast<omt_send_t *>(omt_send_handle), &frame) != 0) {
+	if (omt_send(static_cast<omt_send_t *>(omt_send_handle), &frame) == 0) {
 		emit_signal("metadata_sent", p_metadata);
 	}
 #endif

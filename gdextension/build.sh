@@ -7,6 +7,7 @@ PROJECT_ROOT="$(cd "${ROOT}/.." && pwd)"
 BUILD_TYPE="${BUILD_TYPE:-debug}"
 GODOT_BIN="${GODOT_BIN:-godot}"
 REQUIRE_LIBOMT="${REQUIRE_LIBOMT:-1}"
+BUILD_PLATFORM="${BUILD_PLATFORM:-}"
 
 cd "${ROOT}"
 
@@ -19,25 +20,37 @@ if [[ ! -f "${LIBOMT_HEADER}" ]]; then
 fi
 
 LIBOMT_ROOT="${LIBOMT_ROOT:-${PROJECT_ROOT}/third_party/libomt}"
-if [[ "${REQUIRE_LIBOMT}" == "1" && ! -f "${LIBOMT_ROOT}/lib/libomt.so" ]]; then
+HOST_PLATFORM="$(uname -s)"
+if [[ -z "${BUILD_PLATFORM}" ]]; then
+	case "${HOST_PLATFORM}" in
+		Linux*) BUILD_PLATFORM="linux" ;;
+		Darwin*) BUILD_PLATFORM="macos" ;;
+		MINGW*|MSYS*|CYGWIN*) BUILD_PLATFORM="windows" ;;
+		*) BUILD_PLATFORM="linux" ;;
+	esac
+fi
+
+if [[ "${REQUIRE_LIBOMT}" == "1" && "${BUILD_PLATFORM}" == "linux" && ! -f "${LIBOMT_ROOT}/lib/libomt.so" ]]; then
 	echo "libomt.so is missing; building/staging Linux libomt..."
 	bash "${PROJECT_ROOT}/third_party/libomt/build-linux.sh"
 fi
 
 if [[ "${REQUIRE_LIBOMT}" == "1" ]]; then
-	if [[ ! -f "${LIBOMT_ROOT}/lib/libomt.so" ]]; then
-		echo "error: ${LIBOMT_ROOT}/lib/libomt.so not found after build attempt." >&2
-		echo "error: OMT discovery/receive cannot be enabled without libomt.so." >&2
-		echo "error: rerun third_party/libomt/build-linux.sh and fix the first error it prints." >&2
-		exit 1
-	fi
-	if [[ ! -f "${LIBOMT_ROOT}/lib/libvmx.so" ]]; then
-		echo "error: ${LIBOMT_ROOT}/lib/libvmx.so not found after build attempt." >&2
-		echo "error: libomt needs libvmx beside it at runtime." >&2
-		exit 1
+	if [[ "${BUILD_PLATFORM}" == "linux" ]]; then
+		if [[ ! -f "${LIBOMT_ROOT}/lib/libomt.so" ]]; then
+			echo "error: ${LIBOMT_ROOT}/lib/libomt.so not found after build attempt." >&2
+			echo "error: OMT discovery/receive cannot be enabled without libomt.so." >&2
+			echo "error: rerun third_party/libomt/build-linux.sh and fix the first error it prints." >&2
+			exit 1
+		fi
+		if [[ ! -f "${LIBOMT_ROOT}/lib/libvmx.so" ]]; then
+			echo "error: ${LIBOMT_ROOT}/lib/libvmx.so not found after build attempt." >&2
+			echo "error: libomt needs libvmx beside it at runtime." >&2
+			exit 1
+		fi
 	fi
 else
-	if [[ ! -f "${LIBOMT_ROOT}/lib/libomt.so" ]]; then
+	if [[ "${BUILD_PLATFORM}" == "linux" && ! -f "${LIBOMT_ROOT}/lib/libomt.so" ]]; then
 		echo "warning: ${LIBOMT_ROOT}/lib/libomt.so not found; OMT discovery/receive will be disabled." >&2
 	fi
 fi

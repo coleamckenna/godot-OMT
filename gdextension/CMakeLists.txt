@@ -19,6 +19,18 @@ get_target_property(GODOTCPP_PLATFORM godot::cpp GODOTCPP_PLATFORM)
 
 project(godot_omt LANGUAGES CXX)
 
+set(GODOT_BIN_PLATFORM_DIR "${GODOTCPP_PLATFORM}")
+if(GODOTCPP_PLATFORM STREQUAL "linux")
+	set(GODOT_BIN_PLATFORM_DIR "linux")
+elseif(GODOTCPP_PLATFORM STREQUAL "macos")
+	set(GODOT_BIN_PLATFORM_DIR "macos")
+elseif(GODOTCPP_PLATFORM STREQUAL "windows")
+	set(GODOT_BIN_PLATFORM_DIR "windows")
+endif()
+
+get_filename_component(GODOT_PROJECT_ABS_DIR "${CMAKE_SOURCE_DIR}/${GODOT_PROJECT_DIR}" ABSOLUTE)
+set(GODOT_BIN_DIR "${GODOT_PROJECT_ABS_DIR}/bin/${GODOT_BIN_PLATFORM_DIR}")
+
 add_library(${LIBNAME} SHARED
 	src/omt.cpp
 	src/omt.h
@@ -64,12 +76,14 @@ if(NOT EXISTS "${LIBOMT_HEADER}")
 endif()
 
 unset(LIBOMT_INCLUDE_DIR CACHE)
-unset(LIBOMT_LIBRARY CACHE)
+unset(LIBOMT_LINK_LIBRARY CACHE)
 unset(LIBVMX_LIBRARY CACHE)
 
 set(LIBOMT_INCLUDE_DIR "")
-set(LIBOMT_LIBRARY "")
+set(LIBOMT_LINK_LIBRARY "")
+set(LIBOMT_RUNTIME_LIBRARY "")
 set(LIBVMX_LIBRARY "")
+set(LIBOMTNET_LIBRARY "")
 
 if(EXISTS "${LIBOMT_ROOT}/include/libomt.h")
 	set(LIBOMT_INCLUDE_DIR "${LIBOMT_ROOT}/include")
@@ -77,27 +91,58 @@ elseif(EXISTS "${LIBOMT_ROOT}/libomt.h")
 	set(LIBOMT_INCLUDE_DIR "${LIBOMT_ROOT}")
 endif()
 
-if(EXISTS "${LIBOMT_ROOT}/lib/libomt.so")
-	set(LIBOMT_LIBRARY "${LIBOMT_ROOT}/lib/libomt.so")
-elseif(EXISTS "${LIBOMT_ROOT}/lib64/libomt.so")
-	set(LIBOMT_LIBRARY "${LIBOMT_ROOT}/lib64/libomt.so")
-elseif(EXISTS "${LIBOMT_ROOT}/libomt.so")
-	set(LIBOMT_LIBRARY "${LIBOMT_ROOT}/libomt.so")
+set(LIBOMT_SEARCH_DIRS
+	"${GODOT_BIN_DIR}"
+	"${LIBOMT_ROOT}/lib"
+	"${LIBOMT_ROOT}/lib64"
+	"${LIBOMT_ROOT}"
+)
+
+if(GODOTCPP_PLATFORM STREQUAL "windows")
+	foreach(search_dir IN LISTS LIBOMT_SEARCH_DIRS)
+		if(NOT LIBOMT_LINK_LIBRARY AND EXISTS "${search_dir}/libomt.lib")
+			set(LIBOMT_LINK_LIBRARY "${search_dir}/libomt.lib")
+		endif()
+		if(NOT LIBOMT_RUNTIME_LIBRARY AND EXISTS "${search_dir}/libomt.dll")
+			set(LIBOMT_RUNTIME_LIBRARY "${search_dir}/libomt.dll")
+		endif()
+		if(NOT LIBVMX_LIBRARY AND EXISTS "${search_dir}/libvmx.dll")
+			set(LIBVMX_LIBRARY "${search_dir}/libvmx.dll")
+		endif()
+		if(NOT LIBOMTNET_LIBRARY AND EXISTS "${search_dir}/libomtnet.dll")
+			set(LIBOMTNET_LIBRARY "${search_dir}/libomtnet.dll")
+		endif()
+	endforeach()
+elseif(GODOTCPP_PLATFORM STREQUAL "macos")
+	foreach(search_dir IN LISTS LIBOMT_SEARCH_DIRS)
+		if(NOT LIBOMT_LINK_LIBRARY AND EXISTS "${search_dir}/libomt.dylib")
+			set(LIBOMT_LINK_LIBRARY "${search_dir}/libomt.dylib")
+			set(LIBOMT_RUNTIME_LIBRARY "${search_dir}/libomt.dylib")
+		endif()
+		if(NOT LIBVMX_LIBRARY AND EXISTS "${search_dir}/libvmx.dylib")
+			set(LIBVMX_LIBRARY "${search_dir}/libvmx.dylib")
+		endif()
+		if(NOT LIBOMTNET_LIBRARY AND EXISTS "${search_dir}/libomtnet.dll")
+			set(LIBOMTNET_LIBRARY "${search_dir}/libomtnet.dll")
+		endif()
+	endforeach()
+else()
+	foreach(search_dir IN LISTS LIBOMT_SEARCH_DIRS)
+		if(NOT LIBOMT_LINK_LIBRARY AND EXISTS "${search_dir}/libomt.so")
+			set(LIBOMT_LINK_LIBRARY "${search_dir}/libomt.so")
+			set(LIBOMT_RUNTIME_LIBRARY "${search_dir}/libomt.so")
+		endif()
+		if(NOT LIBVMX_LIBRARY AND EXISTS "${search_dir}/libvmx.so")
+			set(LIBVMX_LIBRARY "${search_dir}/libvmx.so")
+		endif()
+	endforeach()
 endif()
 
-if(EXISTS "${LIBOMT_ROOT}/lib/libvmx.so")
-	set(LIBVMX_LIBRARY "${LIBOMT_ROOT}/lib/libvmx.so")
-elseif(EXISTS "${LIBOMT_ROOT}/lib64/libvmx.so")
-	set(LIBVMX_LIBRARY "${LIBOMT_ROOT}/lib64/libvmx.so")
-elseif(EXISTS "${LIBOMT_ROOT}/libvmx.so")
-	set(LIBVMX_LIBRARY "${LIBOMT_ROOT}/libvmx.so")
-endif()
-
-if(LIBOMT_INCLUDE_DIR AND LIBOMT_LIBRARY)
-	message(STATUS "libomt: ${LIBOMT_LIBRARY}")
+if(LIBOMT_INCLUDE_DIR AND LIBOMT_LINK_LIBRARY)
+	message(STATUS "libomt link library: ${LIBOMT_LINK_LIBRARY}")
 	target_include_directories(${LIBNAME} PRIVATE "${LIBOMT_INCLUDE_DIR}")
-	target_link_libraries(${LIBNAME} PRIVATE "${LIBOMT_LIBRARY}")
-	if(LIBVMX_LIBRARY)
+	target_link_libraries(${LIBNAME} PRIVATE "${LIBOMT_LINK_LIBRARY}")
+	if(LIBVMX_LIBRARY AND NOT GODOTCPP_PLATFORM STREQUAL "windows")
 		message(STATUS "libvmx: ${LIBVMX_LIBRARY}")
 		target_link_libraries(${LIBNAME} PRIVATE "${LIBVMX_LIBRARY}")
 	endif()
@@ -107,22 +152,12 @@ if(LIBOMT_INCLUDE_DIR AND LIBOMT_LIBRARY)
 	endif()
 else()
 	if(GODOT_OMT_REQUIRE_LIBOMT)
-		message(FATAL_ERROR "libomt not found under ${LIBOMT_ROOT}. Expected include/libomt.h and lib/libomt.so. Run: cd ${CMAKE_SOURCE_DIR}/.. && bash third_party/libomt/build-linux.sh")
+		message(FATAL_ERROR "libomt not found for ${GODOTCPP_PLATFORM}. Expected libomt runtime/link libraries under ${GODOT_BIN_DIR} or ${LIBOMT_ROOT}.")
 	endif()
 	message(WARNING "libomt not found under ${LIBOMT_ROOT} — building with test-pattern stub only because GODOT_OMT_REQUIRE_LIBOMT=OFF.")
 	target_compile_definitions(${LIBNAME} PRIVATE GODOT_OMT_NO_LIBOMT=1)
 endif()
 
-set(GODOT_BIN_PLATFORM_DIR "${GODOTCPP_PLATFORM}")
-if(GODOTCPP_PLATFORM STREQUAL "linux")
-	set(GODOT_BIN_PLATFORM_DIR "linux")
-elseif(GODOTCPP_PLATFORM STREQUAL "macos")
-	set(GODOT_BIN_PLATFORM_DIR "macos")
-elseif(GODOTCPP_PLATFORM STREQUAL "windows")
-	set(GODOT_BIN_PLATFORM_DIR "windows")
-endif()
-
-set(GODOT_BIN_DIR "${CMAKE_SOURCE_DIR}/${GODOT_PROJECT_DIR}/bin/${GODOT_BIN_PLATFORM_DIR}")
 file(MAKE_DIRECTORY "${GODOT_BIN_DIR}")
 
 set_target_properties(${LIBNAME}
@@ -138,16 +173,20 @@ add_custom_command(TARGET ${LIBNAME} POST_BUILD
 	COMMENT "Copying ${LIBNAME} to ${GODOT_BIN_DIR}"
 )
 
-if(LIBOMT_INCLUDE_DIR AND LIBOMT_LIBRARY)
-	add_custom_command(TARGET ${LIBNAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${LIBOMT_LIBRARY}" "${GODOT_BIN_DIR}"
-		COMMENT "Copying libomt runtime to ${GODOT_BIN_DIR}"
-	)
+set(OMT_RUNTIME_LIBRARIES "")
+if(LIBOMT_RUNTIME_LIBRARY)
+	list(APPEND OMT_RUNTIME_LIBRARIES "${LIBOMT_RUNTIME_LIBRARY}")
+endif()
+if(LIBVMX_LIBRARY)
+	list(APPEND OMT_RUNTIME_LIBRARIES "${LIBVMX_LIBRARY}")
+endif()
+if(LIBOMTNET_LIBRARY)
+	list(APPEND OMT_RUNTIME_LIBRARIES "${LIBOMTNET_LIBRARY}")
 endif()
 
-if(LIBVMX_LIBRARY)
+if(OMT_RUNTIME_LIBRARIES)
 	add_custom_command(TARGET ${LIBNAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${LIBVMX_LIBRARY}" "${GODOT_BIN_DIR}"
-		COMMENT "Copying libvmx runtime to ${GODOT_BIN_DIR}"
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OMT_RUNTIME_LIBRARIES} "${GODOT_BIN_DIR}"
+		COMMENT "Copying OMT runtime libraries to ${GODOT_BIN_DIR}"
 	)
 endif()

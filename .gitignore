@@ -1,5 +1,7 @@
 # Godot 4+ specific ignores
 .godot/
+/builds/
+/.build/
 /android/
 .vscode/
 .idea/
@@ -7,6 +9,7 @@
 # OS metadata
 .DS_Store
 Thumbs.db
+Godot_v*_linux.x86_64
 
 # Local backup files
 * (copy).*
