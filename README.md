@@ -81,6 +81,8 @@ Build and stage OMT libraries:
 bash third_party/libomt/build-linux.sh
 ```
 
+The helper clones/builds upstream OMT dependencies under `.build/omt` by default. Set `OMT_WORK_ROOT=/path/to/existing/worktree` if you want to reuse existing `libomtnet`, `libomt`, and `libvmx` checkouts instead.
+
 Build the GDExtension:
 
 ```bash

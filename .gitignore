@@ -2,12 +2,19 @@
 .godot/
 /android/
 .vscode/
+.idea/
+
+# OS metadata
+.DS_Store
+Thumbs.db
 
 # Local backup files
 * (copy).*
 
 # GDExtension build artifacts
 bin/
+.build/
+gdextension/build/
 gdextension/build-*/
 gdextension/godot-cpp/build*/
 third_party/libomt/lib/
